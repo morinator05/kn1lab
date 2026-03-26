@@ -247,23 +247,24 @@ create_virtualbox_vm_windows() {
 }
 
 create_virtualbox_vm_linux() {
+    path=$(which VBoxManage) 
     echo "Setting up VM using VirtualBox and OVA on Linux..."
 
     # Import OVA into VirtualBox
-    "/usr/lib/virtualbox/VBoxManage" import "$CLOUD_IMG_PATH" --vsys 0 --vmname "$VM_NAME"
+    $path import "$CLOUD_IMG_PATH" --vsys 0 --vmname "$VM_NAME"
 
     # Modify VM settings
-    "/usr/lib/virtualbox/VBoxManage" modifyvm "$VM_NAME" --memory $MEMORY_SIZE --cpus $CPU_COUNT
+    $path modifyvm "$VM_NAME" --memory $MEMORY_SIZE --cpus $CPU_COUNT
 
     # Attach the cloud-init ISO to the existing IDE controller (already included in the OVA)
-    "/usr/lib/virtualbox/VBoxManage" storageattach "$VM_NAME" --storagectl "IDE" --port 1 --device 0 --type dvddrive --medium "$CLOUD_INIT_ISO_PATH"
+    $path storageattach "$VM_NAME" --storagectl "IDE" --port 1 --device 0 --type dvddrive --medium "$CLOUD_INIT_ISO_PATH"
 
     # Configure network (NAT with port forwarding)
-    "/usr/lib/virtualbox/VBoxManage" modifyvm "$VM_NAME" --nic1 nat
-    "/usr/lib/virtualbox/VBoxManage" modifyvm "$VM_NAME" --natpf1 "ssh,tcp,127.0.0.1,$SSH_HOST_PORT,,$SSH_GUEST_PORT"
+    $path modifyvm "$VM_NAME" --nic1 nat
+    $path modifyvm "$VM_NAME" --natpf1 "ssh,tcp,127.0.0.1,$SSH_HOST_PORT,,$SSH_GUEST_PORT"
 
     # Start VM in headless mode
-    "/usr/lib/virtualbox/VBoxManage" startvm "$VM_NAME" --type headless
+    $path startvm "$VM_NAME" --type headless
 }
 
 ####################################################################################################
